@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manage Events</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.admin-form{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+
+    margin-bottom:30px;
+
+    font-size:18px;
+
+}
+
+.admin-form input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-bottom:15px;
+
+    border:1px solid #ccc;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+}
+
+.admin-form button{
+
+    background:#6b0015;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 20px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+}
+
+.delete-btn{
+
+    background:red;
+
+    margin-left:10px;
+
+    font-size:18px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo-section">
+
+<img src="logo.png" class="logo">
+<img src="sarmlogo.png" class="sarmlogo">
+
+<div>
+
+<h1>MANAGE EVENTS</h1>
+
+<p>Administrator Panel</p>
+
+</div>
+
+</div>
+
+<div id="clock" class="datetime">
+
+Loading...
+
+</div>
+
+</header>
+
+<div class="page-content">
+
+<div class="admin-form">
+
+<h2 style="color:#6b0015; margin-bottom:20px;">
+
+Add New Event
+
+</h2>
+
+<input
+type="text"
+id="eventName"
+placeholder="Event Name">
+
+<input
+type="date"
+id="eventDate">
+
+<input
+type="text"
+id="eventVenue"
+placeholder="Venue">
+
+<button onclick="saveEvent()">
+
+Save Event
+
+</button>
+
+</div>
+
+<h2 style="color:#6b0015;">
+
+Saved Events
+
+</h2>
+
+<br>
+
+<div id="eventList">
+
+</div>
+
+<br>
+
+<button
+class="back-btn"
+onclick="location.href='admin-dashboard.html'">
+
+← Back to Dashboard
+
+</button>
+
+</div>
+
+<script src="script.js"></script>
+
+<script src="firebase.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBvJkwHK5d_2PQlOxJkp89yODI3Sfg9Zes",
+  authDomain: "campus-navigation-kiosk.firebaseapp.com",
+  projectId: "campus-navigation-kiosk",
+  storageBucket: "campus-navigation-kiosk.appspot.com",
+  messagingSenderId: "279195798205",
+  appId: "1:279195798205:web:0254baa608de440fb505d4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 🔐 LOGIN CHECK (keep yours) */
+if(localStorage.getItem("adminLoggedIn") !== "true"){
+  window.location.href = "indexlogin.html";
+}
+
+/* ➕ SAVE EVENT (FIREBASE VERSION) */
+window.saveEvent = async function () {
+
+  let name = document.getElementById("eventName").value;
+  let date = document.getElementById("eventDate").value;
+  let venue = document.getElementById("eventVenue").value;
+
+  if(name === "" || date === "" || venue === ""){
+    alert("Please complete all fields.");
+    return;
+  }
+
+  await addDoc(collection(db, "events"), {
+    name,
+    date,
+    venue,
+    createdAt: new Date()
+  });
+
+  alert("Event Saved Successfully");
+
+  document.getElementById("eventName").value = "";
+  document.getElementById("eventDate").value = "";
+  document.getElementById("eventVenue").value = "";
+
+  loadEvents();
+};
+
+/* 📄 LOAD EVENTS (FIREBASE VERSION) */
+window.loadEvents = async function () {
+
+  const snapshot = await getDocs(collection(db, "events"));
+
+  let output = "";
+
+  snapshot.forEach((docItem) => {
+
+    const event = docItem.data();
+
+    output += `
+      <div class="event-card">
+        <h3>${event.name}</h3>
+        <p>Date: ${event.date}</p>
+        <p>Venue: ${event.venue}</p>
+
+        <button onclick="deleteEvent('${docItem.id}')">
+          Delete
+        </button>
+      </div>
+    `;
+  });
+
+  document.getElementById("eventList").innerHTML = output;
+};
+
+/* ❌ DELETE EVENT (FIREBASE VERSION) */
+window.deleteEvent = async function (id) {
+
+  await deleteDoc(doc(db, "events", id));
+
+  alert("Event Deleted");
+
+  loadEvents();
+};
+
+/* INIT */
+loadEvents();
+
+</script>
+
+<footer>
+
+    <p>
+        © 2026 BindTech CT-4A 
+    </p>
+
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

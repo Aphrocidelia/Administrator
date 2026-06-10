@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manage Feedback</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.feedback-container{
+
+    padding:30px;
+
+}
+
+.feedback-card{
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    margin-bottom:15px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+
+    font-size:18px;
+
+}
+
+.feedback-card h3{
+
+    color:#6b0015;
+
+    margin-bottom:10px;
+
+}
+
+.feedback-card p{
+
+    margin-bottom:10px;
+
+}
+
+.delete-btn{
+
+    background:#6b0015;
+
+    color:white;
+
+    border:none;
+
+    padding:10px 15px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:18px
+
+}
+
+.back-btn{
+
+    background:#6b0015;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 20px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo-section">
+
+<img src="logo.png" class="logo">
+
+<img src="sarmlogo.png" class="sarmlogo">
+
+<div>
+
+<h1>CAMPUS NAVIGATION KIOSK</h1>
+
+<p>Manage Feedback</p>
+
+</div>
+
+</div>
+
+<div id="clock" class="datetime">
+
+Loading...
+
+</div>
+
+</header>
+
+<div class="feedback-container">
+
+<h2 style="color:#6b0015;">
+
+User Feedback Records
+
+</h2>
+
+<br>
+
+<div id="feedbackList">
+
+</div>
+
+<br>
+
+<button
+class="back-btn"
+onclick="location.href='admin-dashboard.html'">
+
+← Back to Dashboard
+
+</button>
+
+</div>
+
+<script src="script.js"></script>
+
+<script src="firebase.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvJkwHK5d_2PQlOxJkp89yODI3Sfg9Zes",
+  authDomain: "campus-navigation-kiosk.firebaseapp.com",
+  projectId: "campus-navigation-kiosk",
+  storageBucket: "campus-navigation-kiosk.appspot.com",
+  messagingSenderId: "279195798205",
+  appId: "1:279195798205:web:0254baa608de440fb505d4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 🔐 LOGIN CHECK (still localStorage for now) */
+if(localStorage.getItem("adminLoggedIn") !== "true"){
+  window.location.href = "indexlogin.html";
+}
+
+/* 📄 LIVE FEEDBACK SYNC */
+function loadFeedback(){
+
+  onSnapshot(collection(db, "feedback"), (snapshot) => {
+
+    let output = "";
+
+    if(snapshot.empty){
+
+      output = `
+        <div class="feedback-card">
+          <h3>No Feedback Yet</h3>
+          <p>No records found.</p>
+        </div>
+      `;
+
+    } else {
+
+      snapshot.forEach((docItem) => {
+
+        const f = docItem.data();
+
+        output += `
+          <div class="feedback-card">
+            <h3>${f.name}</h3>
+
+            <p><strong>Overall Rating:</strong> ${f.rating}</p>
+            <p><strong>Destination Found:</strong> ${f.destination}</p>
+            <p><strong>Easy To Use:</strong> ${f.easy}</p>
+            <p><strong>Would Recommend:</strong> ${f.recommend}</p>
+            <p><strong>Comments:</strong> ${f.comments}</p>
+            <p><strong>Date:</strong> ${f.date}</p>
+
+            <button class="delete-btn"
+              onclick="deleteFeedback('${docItem.id}')">
+              Delete
+            </button>
+
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("feedbackList").innerHTML = output;
+
+  });
+}
+
+/* ❌ DELETE FEEDBACK (REAL FIREBASE DELETE) */
+window.deleteFeedback = async function(id){
+  await deleteDoc(doc(db, "feedback", id));
+};
+
+/* INIT */
+loadFeedback();
+
+</script>
+
+<footer>
+
+    <p>
+        © 2026 BindTech CT-4A 
+    </p>
+
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

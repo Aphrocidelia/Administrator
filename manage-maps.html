@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Manage Campus Map</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.admin-form{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+
+    margin-bottom:30px;
+
+}
+
+.admin-form input{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-bottom:15px;
+
+    border:1px solid #ccc;
+
+    border-radius:10px;
+
+}
+
+.admin-form button{
+
+    background:#6b0015;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 20px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+}
+
+.map-preview{
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:15px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+
+}
+
+.map-preview img{
+
+    width:100%;
+
+    max-height:500px;
+
+    object-fit:contain;
+
+    border-radius:10px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo-section">
+
+<img src="logo.png" class="logo">
+<img src="sarmlogo.png" class="sarmlogo">
+
+<div>
+
+<h1>MANAGE CAMPUS MAP</h1>
+
+<p>Administrator Panel</p>
+
+</div>
+
+</div>
+
+<div id="clock"
+class="datetime">
+
+Loading...
+
+</div>
+
+</header>
+
+<div class="page-content">
+
+<div class="admin-form">
+
+<h2 style="color:#6b0015;">
+
+Update Campus Map
+
+</h2>
+
+<br>
+
+<p>
+
+Enter the image filename.
+
+Example:
+
+</p>
+
+<br>
+
+<p>
+
+campus-map.jpg
+
+</p>
+
+<br>
+
+<input
+
+type="text"
+
+id="mapPath"
+
+placeholder="campus-map.jpg"
+
+>
+
+<button onclick="saveMap()">
+
+Save Map
+
+</button>
+
+</div>
+
+<div class="map-preview">
+
+<h2 style="color:#6b0015;">
+
+Current Campus Map
+
+</h2>
+
+<br>
+
+<img
+
+id="currentMap"
+
+src="campus-map.jpg"
+
+>
+
+</div>
+
+<br>
+
+<button
+
+class="back-btn"
+
+onclick="location.href='admin-dashboard.html'"
+
+>
+
+← Back to Dashboard
+
+</button>
+
+</div>
+
+<script src="script.js"></script>
+
+<script src="firebase.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvJkwHK5d_2PQlOxJkp89yODI3Sfg9Zes",
+  authDomain: "campus-navigation-kiosk.firebaseapp.com",
+  projectId: "campus-navigation-kiosk",
+  storageBucket: "campus-navigation-kiosk.appspot.com",
+  messagingSenderId: "279195798205",
+  appId: "1:279195798205:web:0254baa608de440fb505d4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 🔐 SECURITY CHECK */
+if(localStorage.getItem("adminLoggedIn") !== "true"){
+  window.location.href = "indexlogin.html";
+}
+
+/* 🗺 REAL-TIME MAP LISTENER */
+function loadMap(){
+
+  const mapRef = doc(db, "settings", "campusMap");
+
+  onSnapshot(mapRef, (snap) => {
+
+    if(snap.exists()){
+
+      const data = snap.data();
+
+      document.getElementById("currentMap").src = data.url;
+
+    }
+
+  });
+
+}
+
+/* 💾 SAVE MAP (FIREBASE VERSION) */
+window.saveMap = async function () {
+
+  let mapPath = document.getElementById("mapPath").value;
+
+  if(!mapPath){
+    alert("Please enter image filename.");
+    return;
+  }
+
+  await setDoc(doc(db, "settings", "campusMap"), {
+    url: mapPath,
+    updatedAt: new Date()
+  });
+
+  alert("Campus map updated successfully.");
+
+};
+
+loadMap();
+
+</script>
+
+<footer>
+
+    <p>
+        © 2026 BindTech CT-4A 
+    </p>
+
+</footer>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

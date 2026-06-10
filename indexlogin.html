@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Administrator Login</title>
+
+<style>
+
+body{
+     height:100vh;
+
+    background-image:url("logbg.png");
+
+    background-size:cover;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    text-align:center;
+    font-family:Arial, sans-serif;
+}
+.logo-section{
+    display:flex;
+    align-items:center;
+    gap: 20px;
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    margin-bottom:5px;
+}
+
+
+.logo{
+
+    width:100px;
+    height:100px;
+
+}
+
+.sarmlogo{
+
+    width:100px;
+
+    height:100px;
+
+
+}
+
+.admin-container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:80vh;
+}
+
+.login-box{
+    width:400px;
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    border-top:6px solid #d4af37;
+    border-bottom:6px solid #d4af37;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+    margin-top:20px;
+}
+
+.login-box h1{
+    text-align:center;
+    color:#6b0015;
+    margin-bottom:10px;
+}
+
+.login-box p{
+    text-align:center;
+    margin-bottom:25px;
+    color:#666;
+}
+
+.login-box input{
+    width:100%;
+    padding:15px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+.login-btn{
+    width:100%;
+    padding:15px;
+    background:#6b0015;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.login-btn:hover{
+    background:#85001f;
+}
+
+.error{
+    color:red;
+    text-align:center;
+    margin-top:10px;
+}
+
+.password-container{
+
+    position:relative;
+
+    width:100%;
+
+}
+
+.password-container input{
+
+    width:100%;
+
+    padding:12px 45px 12px 12px;
+
+    border:1px solid #ccc;
+
+    border-radius:10px;
+
+}
+
+.eye{
+
+    position:absolute;
+
+    right:15px;
+
+    top:35%;
+
+    transform:translateY(-50%);
+
+    cursor:pointer;
+
+    user-select:none;
+
+    font-size:25px;
+
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    color:#f3ebeb;
+
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="admin-container">
+
+<div class="login-box">
+  <div class="logo-section">
+   <img src="logo.png" class="logo">
+   <img src="sarmlogo.png" class="sarmlogo">
+
+  </div>
+
+<h1>Administrator Login</h1>
+
+<p>Authorized Personnel Only</p>
+
+<input
+type="text"
+id="username"
+placeholder="Username">
+
+<br><br>
+
+<div class="password-container">
+
+    <input
+    type="password"
+    id="password"
+    placeholder="Enter Password">
+
+    <span
+    class="eye"
+    onclick="showPassword()">
+
+        👁
+
+    </span>
+
+</div>
+
+<button
+class="login-btn"
+onclick="login()">
+
+Login
+
+</button>
+
+<p
+id="errorMessage"
+class="error">
+</p>
+
+</div>
+
+</div>
+
+<footer>
+
+<p>
+© 2026 BindTech CT4A
+</p>
+
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+
+function login(){
+
+    let username =
+    document.getElementById(
+    "username"
+    ).value;
+
+    let password =
+    document.getElementById(
+    "password"
+    ).value;
+
+    if(
+        username === "admin" &&
+        password === "admin123"
+    ){
+
+        localStorage.setItem(
+        "adminLoggedIn",
+        "true"
+        );
+
+        window.location.href =
+        "admin-dashboard.html";
+
+    }
+
+    else{
+
+        document.getElementById(
+        "errorMessage"
+        ).innerText =
+        "Invalid username or password.";
+
+    }
+
+}
+
+function showPassword(){
+
+    let password =
+    document.getElementById("password");
+
+    password.type =
+    password.type === "password"
+    ? "text"
+    : "password";
+
+}
+</script>
+
+</body>
+
+</html>

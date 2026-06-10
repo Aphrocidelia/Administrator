@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manage Buildings</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.admin-form{
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+
+    margin-bottom:30px;
+
+    font-size:18px;
+
+}
+
+.admin-form input,
+.admin-form textarea{
+
+    width:100%;
+
+    padding:12px;
+
+    margin-bottom:15px;
+
+    border:1px solid #ccc;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+}
+
+.admin-form button{
+
+    background:#6b0015;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 20px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:18px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo-section">
+
+<img src="logo.png" class="logo">
+<img src="sarmlogo.png" class="sarmlogo">
+
+<div>
+
+<h1>MANAGE BUILDINGS</h1>
+
+<p>Administrator Panel</p>
+
+</div>
+
+</div>
+
+<div id="clock" class="datetime">
+Loading...
+</div>
+
+</header>
+
+<div class="page-content">
+
+<div class="admin-form">
+
+<h2 style="color:#6b0015;">
+Add Building
+</h2>
+
+<br>
+
+<input
+type="text"
+id="buildingName"
+placeholder="Building Name">
+
+<textarea
+id="buildingDescription"
+rows="5"
+placeholder="Building Description">
+</textarea>
+
+<input
+type="text"
+id="buildingFloors"
+placeholder="Number of Floors">
+
+<button onclick="saveBuilding()">
+
+Save Building
+
+</button>
+
+</div>
+
+<h2 style="color:#6b0015;">
+Building Records
+</h2>
+
+<br>
+
+<div id="buildingList"></div>
+
+<br>
+
+<button
+class="back-btn"
+onclick="location.href='admin-dashboard.html'">
+
+← Back to Dashboard
+
+</button>
+
+</div>
+
+<script src="script.js"></script>
+
+<script src="firebase.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvJkwHK5d_2PQlOxJkp89yODI3Sfg9Zes",
+  authDomain: "campus-navigation-kiosk.firebaseapp.com",
+  projectId: "campus-navigation-kiosk",
+  storageBucket: "campus-navigation-kiosk.appspot.com",
+  messagingSenderId: "279195798205",
+  appId: "1:279195798205:web:0254baa608de440fb505d4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 🔐 SECURITY CHECK (keep simple or move to Firebase Auth later) */
+if(localStorage.getItem("adminLoggedIn") !== "true"){
+  window.location.href = "indexlogin.html";
+}
+
+/* ➕ SAVE BUILDING (FIREBASE) */
+window.saveBuilding = async function () {
+
+  let name = document.getElementById("buildingName").value;
+  let description = document.getElementById("buildingDescription").value;
+  let floors = document.getElementById("buildingFloors").value;
+
+  if(!name || !description || !floors){
+    alert("Please complete all fields.");
+    return;
+  }
+
+  await addDoc(collection(db, "buildings"), {
+    name,
+    description,
+    floors,
+    createdAt: new Date()
+  });
+
+  alert("Building Saved Successfully");
+
+  document.getElementById("buildingName").value = "";
+  document.getElementById("buildingDescription").value = "";
+  document.getElementById("buildingFloors").value = "";
+};
+
+/* 📄 LIVE BUILDING LIST (SYNCED) */
+function loadBuildings(){
+
+  onSnapshot(collection(db, "buildings"), (snapshot) => {
+
+    let output = "";
+
+    if(snapshot.empty){
+      output = `
+        <div class="event-card">
+          <h3>No Buildings Yet</h3>
+          <p>Add your first building.</p>
+        </div>
+      `;
+    }
+
+    snapshot.forEach(docItem => {
+
+      const b = docItem.data();
+
+      output += `
+        <div class="event-card">
+          <h3>${b.name}</h3>
+          <p>${b.description}</p>
+          <p><strong>Floors:</strong> ${b.floors}</p>
+
+          <button onclick="deleteBuilding('${docItem.id}')">
+            Delete
+          </button>
+        </div>
+      `;
+    });
+
+    document.getElementById("buildingList").innerHTML = output;
+
+  });
+
+}
+
+/* ❌ DELETE BUILDING */
+window.deleteBuilding = async function (id){
+  await deleteDoc(doc(db, "buildings", id));
+};
+
+/* INIT */
+loadBuildings();
+
+</script>
+
+<footer>
+
+    <p>
+        © 2026 BindTech CT-4A 
+    </p>
+
+</footer>
+
+</body>
+
+</html>
